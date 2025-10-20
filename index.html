@@ -49,35 +49,38 @@
     <p id="status"></p>
   </main>
 
-  <script>
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('SW registered'))
-        .catch(err => console.error('SW registration failed:', err));
-    }
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(() => console.log('SW registered'))
+    .catch(err => console.error('SW registration failed:', err));
+}
 
-    // Handle install prompt manually
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.hidden = false;
-    });
+// Listen for the event
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); // stop Chrome from auto-showing
+  deferredPrompt = e;
+  installBtn.hidden = false;
+  document.getElementById('status').textContent = 'App is installable!';
+});
 
-    installBtn.addEventListener('click', async () => {
-      installBtn.hidden = true;
-      deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice;
-      console.log('User choice:', choice.outcome);
-      deferredPrompt = null;
-    });
+// Show prompt on button click
+installBtn.addEventListener('click', async () => {
+  installBtn.hidden = true;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log('User choice:', outcome);
+  deferredPrompt = null;
+});
 
-    window.addEventListener('appinstalled', () => {
-      document.getElementById('status').textContent = 'App installed!';
-    });
-  </script>
+// (Optional) Show message after install
+window.addEventListener('appinstalled', () => {
+  document.getElementById('status').textContent = 'App installed!';
+});
+</script>
+
 </body>
 </html>
